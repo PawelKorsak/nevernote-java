@@ -6,7 +6,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
 @Entity
-public class User {
+public class Users {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
 
@@ -19,6 +19,6 @@ public class User {
     public void setUsername(String username) {this.username=username;}
     public String getUsername() {return this.username;}
     public void setPasswordHash(String passwordHash) {this.passwordHash=passwordHash;}
-    public String getPasswordHash() {return passwordHash;}
+    public String getPasswordHash() {return this.passwordHash;}
 
 }
