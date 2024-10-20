@@ -1,22 +1,23 @@
 package org.nevernote.mapper;
 
 import org.nevernote.dto.UserDTO;
-import org.nevernote.entity.User;
+import org.nevernote.entity.Users;
 
 public class UserMapper {
 
-    public static UserDTO toUserDTO(User user) {
+    public static UserDTO toUserDTO(Users users) {
         UserDTO dto = new UserDTO();
-        dto.setId(user.getId());
-        dto.setUsername(user.getUsername());
+        dto.setId(users.getId());
+        dto.setUsername(users.getUsername());
+        dto.setPassword(users.getPasswordHash());
         return dto;
 
     }
 
-    public static User toUser(UserDTO dto) {
-        User user = new User();
-        user.setId(dto.getId());
-        user.setUsername(dto.getUsername());
-        return user;
+    public static Users toUser(UserDTO dto) {
+        Users users = new Users();
+        users.setId(dto.getId());
+        users.setUsername(dto.getUsername());
+        return users;
     }
 }

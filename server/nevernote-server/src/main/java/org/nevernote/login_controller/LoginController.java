@@ -1,33 +1,36 @@
 package org.nevernote.login_controller;
 
 import org.nevernote.dto.UserDTO;
-import org.nevernote.service.UserService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.*;
-import org.nevernote.login_controller.LoginRequest;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+
 
 @RestController
 @RequestMapping("/api")
 public class LoginController {
 
-    private final UserService userService;
-    public LoginController(UserService userService) {
-        this.userService = userService;
+    private final AuthenticationManager authenticationManager;
+    public LoginController(AuthenticationManager authenticationManager) {
+        this.authenticationManager = authenticationManager;
     }
 
     @PostMapping("/login")
-    public String login(@RequestBody LoginRequest loginRequest) {
-        if ("user".equals(loginRequest.getUsername()) && "password".equals(loginRequest.getPassword())) {
-            return "Login successful";
-        } else {
-            throw new RuntimeException("Invalid credentials");
-        }
-    }
+    public String login(@RequestBody UserDTO user) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword())
+            );
 
-    @PostMapping("/user/create")
-    public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO userDTO) {
-        UserDTO savedUser = userService.createUser(userDTO);
-        return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
+            if (authentication.isAuthenticated()) {
+                return "Login successful!";
+            } else {
+                return "Invalid credentials!";
+            }
+        } catch (AuthenticationException e) {
+            return "Invalid username or password!";
+        }
     }
 }
