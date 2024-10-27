@@ -20,6 +20,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)  // Updated way to disable CSRF
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/login").permitAll()
+                        .requestMatchers("/api/users").permitAll()
                         .anyRequest().authenticated()
                 )
                 .httpBasic();
