@@ -4,6 +4,7 @@ public class NoteDTO {
     private Long id;
     private String title;
     private String description;
+    private UserDTO owner;
     public void  setTitle(String title) {
         this.title = title;
     }
@@ -21,5 +22,13 @@ public class NoteDTO {
     }
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public UserDTO getOwner() {
+        return owner;
+    }
+
+    public void setOwner(UserDTO owner) {
+        this.owner = owner;
     }
 }

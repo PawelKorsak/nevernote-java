@@ -25,11 +25,15 @@ public class LoginController {
             );
 
             if (authentication.isAuthenticated()) {
+                System.out.println("Login Successful");
                 return "Login successful!";
             } else {
+                System.out.println(authentication.getPrincipal());
+                System.out.println("Login failed!");
                 return "Invalid credentials!";
             }
         } catch (AuthenticationException e) {
+            System.out.println(e);
             return "Invalid username or password!";
         }
     }

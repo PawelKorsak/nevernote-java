@@ -10,6 +10,8 @@ function App() {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [editId, setEditId] = useState(null);
+  var basicAuth = "";
+
 
   // Funkcja logowania
   const handleLogin = async (e) => {
@@ -23,6 +25,9 @@ function App() {
       if (response.status === 200) {
         setIsLoggedIn(true);
         fetchNotes(); // Pobierz notatki po zalogowaniu
+
+        var credentials = btoa(username + ':' + password)
+        basicAuth = 'Basic ' + credentials;
       }
     } catch (error) {
       setError('Invalid credentials');
@@ -32,7 +37,7 @@ function App() {
   // Pobieranie notatek
   const fetchNotes = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/notes');
+      const response = await axios.get('http://localhost:8080/api/note',{headers: { 'Authorization': basicAuth }});
       setNotes(response.data);
     } catch (error) {
       console.error("Błąd pobierania notatek:", error);
@@ -42,7 +47,7 @@ function App() {
   // Dodawanie nowej notatki
   const addNote = async () => {
     try {
-      await axios.post('http://localhost:8080/notes', { title, content });
+      await axios.post('http://localhost:8080/note', { title, content },{headers: { 'Authorization': basicAuth }});
       setTitle('');
       setContent('');
       fetchNotes();
@@ -54,7 +59,7 @@ function App() {
   // Aktualizacja notatki
   const updateNote = async () => {
     try {
-      await axios.put(`http://localhost:8080/notes/${editId}`, { title, content });
+      await axios.put(`http://localhost:8080/notes/${editId}`, { title, content },{headers: { 'Authorization': basicAuth }});
       setTitle('');
       setContent('');
       setEditId(null);
@@ -67,7 +72,7 @@ function App() {
   // Usuwanie notatki
   const deleteNote = async (id) => {
     try {
-      await axios.delete(`http://localhost:80800/notes/${id}`);
+      await axios.delete(`http://localhost:80800/notes/${id}`,{headers: { 'Authorization': basicAuth }});
       fetchNotes();
     } catch (error) {
       console.error("Błąd usuwania notatki:", error);
