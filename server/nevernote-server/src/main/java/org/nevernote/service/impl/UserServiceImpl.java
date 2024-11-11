@@ -55,6 +55,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         Users users = getUserFromDb(id);
         userRepository.delete(users);
     }
+
+    @Override
+    public UserDTO getUserByUsername(String username) {
+        return UserMapper.toUserDTO(userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username)));
+    }
+
     private Users getUserFromDb(long id) {
         return userRepository.findById(id).orElseThrow( () -> new ResourceNotFoundException("User with given id does not exist."));
     }

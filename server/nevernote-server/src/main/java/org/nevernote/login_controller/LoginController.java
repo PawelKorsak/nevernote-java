@@ -1,11 +1,15 @@
 package org.nevernote.login_controller;
 
 import org.nevernote.dto.UserDTO;
+import org.nevernote.service.UserService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.web.server.ResponseStatusException;
 
 
 @RestController
@@ -13,12 +17,14 @@ import org.springframework.security.core.AuthenticationException;
 public class LoginController {
 
     private final AuthenticationManager authenticationManager;
-    public LoginController(AuthenticationManager authenticationManager) {
+    private final UserService userService;
+    public LoginController(AuthenticationManager authenticationManager, UserService userService) {
         this.authenticationManager = authenticationManager;
+        this.userService = userService;
     }
 
     @PostMapping("/login")
-    public String login(@RequestBody UserDTO user) {
+    public ResponseEntity<UserDTO> login(@RequestBody UserDTO user) {
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword())
@@ -26,15 +32,16 @@ public class LoginController {
 
             if (authentication.isAuthenticated()) {
                 System.out.println("Login Successful");
-                return "Login successful!";
+                UserDTO userDTO = userService.getUserByUsername(user.getUsername());
+                return new ResponseEntity<>(userDTO, HttpStatus.OK);
             } else {
                 System.out.println(authentication.getPrincipal());
                 System.out.println("Login failed!");
-                return "Invalid credentials!";
+                return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
             }
         } catch (AuthenticationException e) {
             System.out.println(e);
-            return "Invalid username or password!";
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
     }
 }

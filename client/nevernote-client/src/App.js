@@ -4,6 +4,12 @@ import axios from 'axios';
 function App() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [user, setUser] = useState(null);
+  const [note, setNote] = useState({
+    title: '',
+    description: '',
+    ownerId: ''
+  });
   const [error, setError] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [notes, setNotes] = useState([]);
@@ -23,6 +29,8 @@ function App() {
         password,
       });
       if (response.status === 200) {
+        console.log(response);
+        setUser(response.data);
         setIsLoggedIn(true);
         fetchNotes(); // Pobierz notatki po zalogowaniu
 
@@ -47,9 +55,12 @@ function App() {
   // Dodawanie nowej notatki
   const addNote = async () => {
     try {
-      await axios.post('http://localhost:8080/note', { title, content },{headers: { 'Authorization': basicAuth }});
-      setTitle('');
-      setContent('');
+      const updatedNote = {
+        ...note,
+        ownerId: user.id
+      }
+      await axios.post('http://localhost:8080/note', { updatedNote },{headers: { 'Authorization': basicAuth }});
+      setNote(null);
       fetchNotes();
     } catch (error) {
       console.error("Błąd tworzenia notatki:", error);
@@ -95,13 +106,13 @@ function App() {
                 <input
                     type="text"
                     placeholder="Tytuł notatki"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
+                    value={note.title}
+                    onChange={(e) => setNote({...note, title: e.target.value})}
                 />
                 <textarea
                     placeholder="Treść notatki"
-                    value={content}
-                    onChange={(e) => setContent(e.target.value)}
+                    value={note.description}
+                    onChange={(e) => setNote({...note, description: e.target.value})}
                 />
                 <button onClick={editId ? updateNote : addNote}>
                   {editId ? 'Zaktualizuj notatkę' : 'Dodaj notatkę'}
