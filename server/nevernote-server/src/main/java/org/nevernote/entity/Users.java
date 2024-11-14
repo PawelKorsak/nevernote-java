@@ -14,7 +14,7 @@ public class Users {
     private String username;
     @Column(nullable = false)
     private String passwordHash;
-    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Note> notes;
 
     public void setId(Long id) {this.id=id;}

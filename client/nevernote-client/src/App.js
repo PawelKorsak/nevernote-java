@@ -5,18 +5,33 @@ function App() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [user, setUser] = useState(null);
-  const [note, setNote] = useState({
+  const emptyNote ={
+    id: '',
     title: '',
     description: '',
     ownerId: ''
-  });
+  }
+  const [note, setNote] = useState(emptyNote);
   const [error, setError] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [notes, setNotes] = useState([]);
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [editId, setEditId] = useState(null);
-  var basicAuth = "";
+
+  const axiosInstance = axios.create({
+    baseURL: 'http://localhost:8080/api'
+  })
+
+  axiosInstance.interceptors.request.use(
+      (config) => {
+        const token = localStorage.getItem('authToken');
+        if (token){
+          config.headers['Authorization'] =`Bearer ${token}`;
+        }
+        return config;
+      }, (error) =>{
+        console.log(error)
+        return Promise.reject(error);
+      }
+  )
 
 
   // Funkcja logowania
@@ -24,28 +39,26 @@ function App() {
     e.preventDefault();
     setError('');
     try {
-      const response = await axios.post('http://localhost:8080/api/login', {
+      const response = await axiosInstance.post('/login', {
         username,
         password,
       });
       if (response.status === 200) {
-        console.log(response);
-        setUser(response.data);
+        setUser(response.data.user);
+        localStorage.setItem('authToken', response.data.token);
         setIsLoggedIn(true);
         fetchNotes(); // Pobierz notatki po zalogowaniu
-
-        var credentials = btoa(username + ':' + password)
-        basicAuth = 'Basic ' + credentials;
       }
     } catch (error) {
       setError('Invalid credentials');
+      localStorage.removeItem('authToken');
     }
   };
 
   // Pobieranie notatek
   const fetchNotes = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/api/note',{headers: { 'Authorization': basicAuth }});
+      const response = await axiosInstance.get('/note');
       setNotes(response.data);
     } catch (error) {
       console.error("Błąd pobierania notatek:", error);
@@ -59,9 +72,9 @@ function App() {
         ...note,
         ownerId: user.id
       }
-      await axios.post('http://localhost:8080/note', { updatedNote },{headers: { 'Authorization': basicAuth }});
-      setNote(null);
-      fetchNotes();
+      await axiosInstance.post('/note', updatedNote);
+      setNote(emptyNote);
+      await fetchNotes();
     } catch (error) {
       console.error("Błąd tworzenia notatki:", error);
     }
@@ -70,11 +83,9 @@ function App() {
   // Aktualizacja notatki
   const updateNote = async () => {
     try {
-      await axios.put(`http://localhost:8080/notes/${editId}`, { title, content },{headers: { 'Authorization': basicAuth }});
-      setTitle('');
-      setContent('');
-      setEditId(null);
-      fetchNotes();
+      await axiosInstance.put(`/note/${note.id}`, note);
+      setNote(emptyNote);
+      await fetchNotes();
     } catch (error) {
       console.error("Błąd aktualizacji notatki:", error);
     }
@@ -83,8 +94,8 @@ function App() {
   // Usuwanie notatki
   const deleteNote = async (id) => {
     try {
-      await axios.delete(`http://localhost:80800/notes/${id}`,{headers: { 'Authorization': basicAuth }});
-      fetchNotes();
+      await axiosInstance.delete(`/note/${id}`);
+      await fetchNotes();
     } catch (error) {
       console.error("Błąd usuwania notatki:", error);
     }
@@ -92,9 +103,7 @@ function App() {
 
   // Ustawianie edytowanej notatki
   const editNote = (note) => {
-    setTitle(note.title);
-    setContent(note.content);
-    setEditId(note.id);
+    setNote(note);
   };
 
   return (
@@ -114,8 +123,8 @@ function App() {
                     value={note.description}
                     onChange={(e) => setNote({...note, description: e.target.value})}
                 />
-                <button onClick={editId ? updateNote : addNote}>
-                  {editId ? 'Zaktualizuj notatkę' : 'Dodaj notatkę'}
+                <button onClick={note.id ? updateNote : addNote}>
+                  {note.id ? 'Zaktualizuj notatkę' : 'Dodaj notatkę'}
                 </button>
               </div>
               <div>
@@ -123,7 +132,7 @@ function App() {
                 {notes.map((note) => (
                     <div key={note.id}>
                       <h4>{note.title}</h4>
-                      <p>{note.content}</p>
+                      <p>{note.description}</p>
                       <button onClick={() => editNote(note)}>Edytuj</button>
                       <button onClick={() => deleteNote(note.id)}>Usuń</button>
                     </div>

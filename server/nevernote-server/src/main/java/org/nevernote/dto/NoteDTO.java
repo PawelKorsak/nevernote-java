@@ -4,31 +4,37 @@ public class NoteDTO {
     private Long id;
     private String title;
     private String description;
-    private UserDTO owner;
-    public void  setTitle(String title) {
+    private Long ownerId;
+
+    public void setTitle(String title) {
         this.title = title;
     }
+
     public String getTitle() {
         return title;
     }
-    public void  setDescription(String description) {
+
+    public void setDescription(String description) {
         this.description = description;
     }
+
     public String getDescription() {
         return description;
     }
+
     public Long getId() {
         return id;
     }
+
     public void setId(Long id) {
         this.id = id;
     }
 
-    public UserDTO getOwner() {
-        return owner;
+    public Long getOwnerId() {
+        return ownerId;
     }
 
-    public void setOwner(UserDTO owner) {
-        this.owner = owner;
+    public void setOwner(Long ownerId) {
+        this.ownerId = ownerId;
     }
 }

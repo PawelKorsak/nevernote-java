@@ -1,5 +1,6 @@
 package org.nevernote.service.impl;
 
+import jakarta.transaction.Transactional;
 import org.nevernote.dto.UserDTO;
 import org.nevernote.entity.Users;
 import org.nevernote.exception.ResourceNotFoundException;
@@ -22,6 +23,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private final UserRepository userRepository;
     public UserServiceImpl(UserRepository userRepository) {this.userRepository=userRepository;}
 
+    @Transactional
     @Override
     public UserDTO createUser(UserDTO userDTO) {
         Users users = UserMapper.toUser(userDTO);
@@ -30,6 +32,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return UserMapper.toUserDTO(savedUsers);
     }
 
+    @Transactional
     @Override
     public UserDTO getUser(Long id) {
         Users user = getUserFromDb(id);
@@ -42,6 +45,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return users.stream().map(UserMapper::toUserDTO).collect(Collectors.toList());
     }
 
+    @Transactional
     @Override
     public UserDTO updateUser(Long id, UserDTO user) {
         Users actualUsers = getUserFromDb(id);
@@ -50,6 +54,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return UserMapper.toUserDTO(updatedUsers);
     }
 
+    @Transactional
     @Override
     public void deleteUser(Long id) {
         Users users = getUserFromDb(id);
