@@ -9,7 +9,7 @@ public class NoteMapper {
         dto.setId(note.getId());
         dto.setTitle(note.getTitle());
         dto.setDescription(note.getDescription());
-        dto.setOwner(UserMapper.toUserDTO(note.getOwner()));
+        dto.setOwner(note.getOwner().getId());
         return dto;
     }
 
@@ -18,7 +18,6 @@ public class NoteMapper {
         note.setId(dto.getId());
         note.setTitle(dto.getTitle());
         note.setDescription(dto.getDescription());
-        note.setOwner(UserMapper.toUser(dto.getOwner()));
         return note;
     }
 }
